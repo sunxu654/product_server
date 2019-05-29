@@ -5,17 +5,21 @@ import net.xdclass.product_server.service.ProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.TimeUnit;
-
 @RestController
 @RequestMapping("api/v1/product")
+@RefreshScope   //对动态刷新的类,才需要加此注解;用于当配置文件内某些变量改变时,可以动态加载  比如下面的"env"
 public class ProductController {
     @Value("${server.port}")
     private String port;
+
+    @Value("${env}")
+    private String env;
+
     @Autowired
     private ProductService productService;
 
@@ -26,6 +30,7 @@ public class ProductController {
      */
     @RequestMapping("list")
     public Object list() {
+        System.out.println(env);
         return productService.listProduct();
     }
 
@@ -46,6 +51,8 @@ public class ProductController {
         Product result = new Product();
         BeanUtils.copyProperties(product, result);
         result.setName(result.getName() + "data from" + port);
+
+
         return result;
     }
 }
